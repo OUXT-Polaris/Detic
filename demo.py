@@ -97,10 +97,6 @@ def get_parser():
         "If not given, will show output in an OpenCV window.",
     )
     parser.add_argument(
-        "--json_output",
-        help="A json filepath which output the result of the detections.",
-    )
-    parser.add_argument(
         "--vocabulary",
         default="lvis",
         choices=["lvis", "openimages", "objects365", "coco", "custom"],
@@ -159,6 +155,7 @@ if __name__ == "__main__":
         if len(args.input) == 1:
             args.input = glob.glob(os.path.expanduser(args.input[0]))
             assert args.input, "The input path(s) was not found"
+        index = 0
         for path in tqdm.tqdm(args.input, disable=not args.output):
             img = read_image(path, format="BGR")
             start_time = time.time()
@@ -186,18 +183,24 @@ if __name__ == "__main__":
                     predictions["instances"].pred_classes[i].item()
                 ]
                 detections["detections"].append(detection)
-            with open(args.json_output, 'w') as f:
-                json.dump(detections, f, ensure_ascii=False, indent=2)
-
             if args.output:
                 if os.path.isdir(args.output):
                     assert os.path.isdir(args.output), args.output
                     out_filename = os.path.join(args.output, os.path.basename(path))
+                    with open(
+                        os.path.join(
+                            args.output,
+                            os.path.splitext(os.path.basename(path))[0] + ".json",
+                        ),
+                        "w",
+                    ) as f:
+                        json.dump(detections, f, ensure_ascii=False, indent=2)
                 else:
                     assert (
                         len(args.input) == 1
                     ), "Please specify a directory with args.output"
                     out_filename = args.output
+                index = index + 1
                 visualized_output.save(out_filename)
             else:
                 cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
