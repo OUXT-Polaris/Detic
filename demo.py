@@ -97,6 +97,10 @@ def get_parser():
         "If not given, will show output in an OpenCV window.",
     )
     parser.add_argument(
+        "--json_output",
+        help="A json filepath which output the result of the detections.",
+    )
+    parser.add_argument(
         "--vocabulary",
         default="lvis",
         choices=["lvis", "openimages", "objects365", "coco", "custom"],
@@ -171,7 +175,6 @@ if __name__ == "__main__":
             detections = {"detections": []}
             for i in range(len(predictions["instances"])):
                 detection = {}
-                # detection["box"]["x1"] = predictions["instances"].pred_boxes[i]
                 detection["box"] = {
                     "x1": predictions["instances"].pred_boxes[i].tensor[0][0].item(),
                     "y1": predictions["instances"].pred_boxes[i].tensor[0][1].item(),
@@ -183,7 +186,7 @@ if __name__ == "__main__":
                     predictions["instances"].pred_classes[i].item()
                 ]
                 detections["detections"].append(detection)
-            with open("detection.json", encoding="utf-8", mode="w") as f:
+            with open(args.json_output, 'w') as f:
                 json.dump(detections, f, ensure_ascii=False, indent=2)
 
             if args.output:
