@@ -179,7 +179,7 @@ if __name__ == "__main__":
                     "y2": predictions["instances"].pred_boxes[i].tensor[0][3].item(),
                 }
                 detection["score"] = predictions["instances"].scores[i].item()
-                detection["class"] = demo.metadata.thing_classes[
+                detection["object_class"] = demo.metadata.thing_classes[
                     predictions["instances"].pred_classes[i].item()
                 ]
                 detections["detections"].append(detection)
